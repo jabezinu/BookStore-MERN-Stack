@@ -9,6 +9,28 @@ const app = express();
 app.use(express.json())
 
 
+// Routes for saving a new Book
+app.post('/books', async (req, res) => {
+    try {
+        if(!req.body.title || !req.body.publishedYear || !req.body.author ){
+            res.status(400).send({message: "Send all required fields"})
+        }
+        const newBook = {
+            title: req.body.title,
+            author: req.body.author,
+            publishedYear: req.body.publishedYear,
+        }
+
+        const book = await Book.create(newBook)
+
+        return res.status(201).send(book)        
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({message: error.message})
+    }
+})
+
+
 
 mongoose
     .connect(MONGO_URI)
