@@ -1,12 +1,13 @@
 import express from "express";
 import {PORT, MONGO_URI} from "./config.js";
 import mongoose from "mongoose";
+import { Book } from "./models/bookModel.js";
 
 const app = express();
 
-app.get('/', (req, res) => {
-    return res.status(234).send("Welcome to MERN Stack Tutorial.")
-});
+// JSON parser
+app.use(express.json())
+
 
 
 mongoose
