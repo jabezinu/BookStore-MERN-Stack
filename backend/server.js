@@ -76,7 +76,24 @@ app.put("/books/:id", async (req, res) => {
             return res.status(400).json({message: "Book is faild to be updated"})
         }
 
-        return res.status(200).json(updatedBook)
+        return res.status(200).json({message: "book is updaed succefully", data:updatedBook})
+        
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({message: error.message})
+    }
+})
+// Route for Delete book 
+app.delete("/books/:id", async (req, res) => {
+    try {
+        const {id} = req.params;
+        const DeletedBook = await Book.findByIdAndDelete(id);  
+        
+        if(!DeletedBook){
+            return res.status(400).json({message: "Book is faild to be Deleted"})
+        }
+
+        return res.status(200).json({message: "Book is deleted successfuly"})
         
     } catch (error) {
         console.log(error.message)
