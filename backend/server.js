@@ -1,107 +1,26 @@
 import express from "express";
 import {PORT, MONGO_URI} from "./config.js";
 import mongoose from "mongoose";
-import { Book } from "./models/bookModel.js";
+import booksRouter from "./routes/booksRoute.js"
 
 const app = express();
 
 // JSON parser
 app.use(express.json())
 
+// Option 1: Allow all Origin with Default of cors(*)
+// app.use(cors());
 
-// Routes for saving a new Book
-app.post('/books', async (req, res) => {
-    try {
-        if(!req.body.title || !req.body.publishedYear || !req.body.author ){
-            res.status(400).send({message: "Send all required fields"})
-        }
-        const newBook = {
-            title: req.body.title,
-            author: req.body.author,
-            publishedYear: req.body.publishedYear,
-        }
+// Option 2: Allow Custom Origin
+app.use(
+    cors({
+        origin: 'http://localhost:3000',
+        method: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type'],
+    })
+)
 
-        const book = await Book.create(newBook)
-
-        return res.status(201).send(book)        
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).send({message: error.message})
-    }
-})
-
-
-// route for Get All Books from database
-app.get("/books", async (req, res) => {
-    try {
-        const books = await Book.find({})
-
-        return res.status(200).json({
-            count: books.length,
-            data: books
-        })
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).send({message: error.message})        
-    }
-})
-
-
-// Route for Geting book by Id
-app.get("/books/:id", async (req, res) => {
-    try {
-        const {id} = req.params;
-        const book = await Book.findById(id);        
-
-        return res.status(200).json(book)
-        
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).send({message: error.message})
-    }
-})
-
-// Route for Update book by 
-app.put("/books/:id", async (req, res) => {
-    try {
-        const {id} = req.params;
-        const newBook = {
-            title: req.body.title,
-            author: req.body.author,
-            publishedYear: req.body.publishedYear,
-        }
-        const updatedBook = await Book.findByIdAndUpdate(id, newBook, {new: true});  
-        
-        if(!updatedBook){
-            return res.status(400).json({message: "Book is faild to be updated"})
-        }
-
-        return res.status(200).json({message: "book is updaed succefully", data:updatedBook})
-        
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).send({message: error.message})
-    }
-})
-// Route for Delete book 
-app.delete("/books/:id", async (req, res) => {
-    try {
-        const {id} = req.params;
-        const DeletedBook = await Book.findByIdAndDelete(id);  
-        
-        if(!DeletedBook){
-            return res.status(400).json({message: "Book is faild to be Deleted"})
-        }
-
-        return res.status(200).json({message: "Book is deleted successfuly"})
-        
-    } catch (error) {
-        console.log(error.message)
-        res.status(500).send({message: error.message})
-    }
-})
-
-
+app.use('/books', booksRouter)
 
 mongoose
     .connect(MONGO_URI)
