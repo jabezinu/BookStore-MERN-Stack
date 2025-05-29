@@ -61,6 +61,30 @@ app.get("/books/:id", async (req, res) => {
     }
 })
 
+// Route for Update book by 
+app.put("/books/:id", async (req, res) => {
+    try {
+        const {id} = req.params;
+        const newBook = {
+            title: req.body.title,
+            author: req.body.author,
+            publishedYear: req.body.publishedYear,
+        }
+        const updatedBook = await Book.findByIdAndUpdate(id, newBook, {new: true});  
+        
+        if(!updatedBook){
+            return res.status(400).json({message: "Book is faild to be updated"})
+        }
+
+        return res.status(200).json(updatedBook)
+        
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).send({message: error.message})
+    }
+})
+
+
 
 mongoose
     .connect(MONGO_URI)
